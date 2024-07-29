@@ -1,0 +1,565 @@
+import numpy as np
+from sklearn.preprocessing import StandardScaler
+from sklearn.decomposition import PCA
+from sklearn.svm import SVC
+from sklearn.pipeline import make_pipeline
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report
+
+# Step 1: Fourier Transform - extracting frequency domain features
+def apply_fourier(data):
+    return np.abs(np.fft.fft(data))
+
+# Sample feature transformation using Fourier
+data['BRCA1_FFT'] = data['BRCA1'].apply(apply_fourier)
+data['TP53_FFT'] = data['TP53'].apply(apply_fourier)
+data['EGFR_FFT'] = data['EGFR'].apply(apply_fourier)
+
+# Step 2: Simulated Laplace Transform feature (for demonstration)
+data['BRCA1_stability'] = np.exp(-data['BRCA1'].abs())
+
+# Assume a synthetic binary outcome related to gene expression patterns
+data['Outcome'] = (data['BRCA1_FFT'] + data['TP53_FFT'] > data['EGFR_FFT']).astype(int)
+
+# Step 3: Data preparation for machine learning
+features = ['BRCA1_FFT', 'TP53_FFT', 'EGFR_FFT', 'BRCA1_stability']
+X = data[features]
+y = data['Outcome']
+
+# Data splitting
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Machine learning pipeline
+model = make_pipeline(StandardScaler(), PCA(n_components=2), SVC(probability=True))
+model.fit(X_train, y_train)
+
+# Prediction and performance evaluation
+predictions = model.predict(X_test)
+print(classification_report(y_test, predictions))
+
+
+import networkx as nx
+import matplotlib.pyplot as plt
+
+# Create a directed graph
+G = nx.DiGraph()
+
+# Adding nodes representing components of the proposed method
+nodes = [
+    "Genomic Data", "Transcriptomic Data", "Proteomic Data",
+    "Clinical Images", "Textual Data", "Fourier Transform",
+    "Laplace Transform", "Feature Integration", "VLM", "Predictive Modeling"
+]
+
+# Adding nodes to the graph
+for node in nodes:
+    G.add_node(node)
+
+# Connecting nodes to represent the flow of data and processing steps
+edges = [
+    ("Genomic Data", "Fourier Transform"),
+    ("Transcriptomic Data", "Fourier Transform"),
+    ("Proteomic Data", "Laplace Transform"),
+    ("Clinical Images", "Feature Integration"),
+    ("Textual Data", "Feature Integration"),
+    ("Fourier Transform", "Feature Integration"),
+    ("Laplace Transform", "Feature Integration"),
+    ("Feature Integration", "VLM"),
+    ("VLM", "Predictive Modeling")
+]
+
+# Adding edges to the graph
+for edge in edges:
+    G.add_edge(*edge)
+
+# Drawing the graph
+plt.figure(figsize=(12, 8))
+pos = nx.spring_layout(G, seed=42)  # positions for all nodes
+nx.draw_networkx_nodes(G, pos, node_size=7000, node_color="skyblue", alpha=0.6)
+nx.draw_networkx_edges(G, pos, arrowstyle='-|>', arrowsize=20, edge_color='gray', style='dashed')
+nx.draw_networkx_labels(G, pos, font_size=10, font_family='sans-serif')
+plt.title("Network Graph Representing the Methodology Flow")
+plt.axis('off')  # Turn off the axis
+plt.show()
+
+
+import numpy as np
+
+# Define a simple Fourier Transform function for demonstration (applying to the whole column for simplicity)
+data['BRCA1_FFT'] = np.abs(np.fft.fft(data['BRCA1']))
+data['TP53_FFT'] = np.abs(np.fft.fft(data['TP53']))
+data['EGFR_FFT'] = np.abs(np.fft.fft(data['EGFR']))
+
+# Simulating a stability feature based on an arbitrary transformation (using exponential decay of absolute values)
+data['BRCA1_stability'] = np.exp(-np.abs(data['BRCA1']))
+
+# Features for the model
+features = ['BRCA1_FFT', 'TP53_FFT', 'EGFR_FFT', 'BRCA1_stability']
+
+# Simulate a binary outcome based on a simple rule
+data['Outcome'] = (data['BRCA1_FFT'] + data['TP53_FFT'] > data['EGFR_FFT']).astype(int)
+
+# Splitting the dataset into features and target
+X = data[features]
+y = data['Outcome']
+
+# Train a logistic regression model
+from sklearn.linear_model import LogisticRegression
+model = LogisticRegression()
+model.fit(X, y)
+
+# Select a few specific patients for personalized outcome prediction
+sample_patients = data.sample(5, random_state=42)
+personalized_outcomes = model.predict_proba(sample_patients[features])
+
+# Organize the results in a DataFrame
+outcomes_df = sample_patients[['Patient_ID', 'BRCA1', 'TP53', 'EGFR']]
+outcomes_df['Predicted_Probability_of_Positive_Outcome'] = personalized_outcomes[:, 1]
+
+outcomes_df
+
+
+import matplotlib.pyplot as plt
+import networkx as nx
+
+# Create a directed graph
+G = nx.DiGraph()
+
+# Define nodes for different data types and processes
+nodes = [
+    "Genomic Data", "Transcriptomic Data", "Proteomic Data",
+    "Clinical Images", "Textual Data", "Fourier Transform",
+    "Laplace Transform", "Feature Integration", "VLM", "Predictive Modeling"
+]
+
+# Add nodes to the graph
+for node in nodes:
+    G.add_node(node)
+
+# Define edges showing the flow of data processing
+edges = [
+    ("Genomic Data", "Fourier Transform"),
+    ("Transcriptomic Data", "Fourier Transform"),
+    ("Proteomic Data", "Laplace Transform"),
+    ("Clinical Images", "Feature Integration"),
+    ("Textual Data", "Feature Integration"),
+    ("Fourier Transform", "Feature Integration"),
+    ("Laplace Transform", "Feature Integration"),
+    ("Feature Integration", "VLM"),
+    ("VLM", "Predictive Modeling")
+]
+
+# Add edges to the graph
+for edge in edges:
+    G.add_edge(*edge)
+
+# Graph layout
+pos = nx.spring_layout(G, seed=42)  # Seed for reproducible layout
+
+# Drawing components
+nx.draw(G, pos, with_labels=True, node_color='skyblue', edge_color='#909090', node_size=4500, font_size=9, font_color='black')
+
+plt.figure(figsize=(12, 8))
+nx.draw_networkx_nodes(G, pos, node_size=4500, node_color="skyblue", alpha=0.6)
+nx.draw_networkx_edges(G, pos, arrowstyle='-|>', arrowsize=20, edge_color='gray', style='dashed')
+nx.draw_networkx_labels(G, pos, font_size=10, font_family='sans-serif')
+plt.title("Methodology Flowchart for Drug Discovery")
+plt.axis('off')
+plt.savefig('C:/2024_Research/ACM/Methodology_Flowchart.png')
+plt.close()
+
+
+
+import matplotlib.pyplot as plt
+import networkx as nx
+
+# Create a directed graph
+G = nx.DiGraph()
+
+# Define nodes for different data types and processes
+nodes = [
+    "Genomic Data", "Transcriptomic Data", "Proteomic Data",
+    "Clinical Images", "Textual Data", "Fourier Transform",
+    "Laplace Transform", "Feature Integration", "VLM", "Predictive Modeling"
+]
+
+# Add nodes to the graph
+for node in nodes:
+    G.add_node(node)
+
+# Define edges showing the flow of data processing
+edges = [
+    ("Genomic Data", "Fourier Transform"),
+    ("Transcriptomic Data", "Fourier Transform"),
+    ("Proteomic Data", "Laplace Transform"),
+    ("Clinical Images", "Feature Integration"),
+    ("Textual Data", "Feature Integration"),
+    ("Fourier Transform", "Feature Integration"),
+    ("Laplace Transform", "Feature Integration"),
+    ("Feature Integration", "VLM"),
+    ("VLM", "Predictive Modeling")
+]
+
+# Add edges to the graph
+for edge in edges:
+    G.add_edge(*edge)
+
+# Graph layout
+pos = nx.spring_layout(G, seed=42)  # Seed for reproducible layout
+
+# Initialize the plot
+plt.figure(figsize=(12, 8))
+nx.draw_networkx_nodes(G, pos, node_size=7000, node_color="skyblue", alpha=0.6)
+nx.draw_networkx_edges(G, pos, arrowstyle='-|>', arrowsize=20, edge_color='gray', style='dashed')
+nx.draw_networkx_labels(G, pos, font_size=10, font_family='sans-serif')
+plt.title("Methodology Flowchart for Drug Discovery")
+plt.axis('off')  # Turn off the axis for a cleaner look
+plt.savefig('C:/2024_Research/ACM/Methodology_Flowchart.png')  # Adjust path as needed
+plt.show()
+
+
+
+# Let's visualize specific patient outcomes by plotting the predicted probabilities against actual data features.
+# First, reload the data and recreate the features and model predictions as previously outlined.
+
+import pandas as pd
+import numpy as np
+from sklearn.linear_model import LogisticRegression
+
+# Load the data
+data_path = "C:/2024_Research/ACM/Synthetic_Specific_Pharmacogenomic_Data.csv"
+data = pd.read_csv(data_path)
+
+# Apply Fourier Transform and create stability feature
+data['BRCA1_FFT'] = np.abs(np.fft.fft(data['BRCA1']))
+data['TP53_FFT'] = np.abs(np.fft.fft(data['TP53']))
+data['EGFR_FFT'] = np.abs(np.fft.fft(data['EGFR']))
+data['BRCA1_stability'] = np.exp(-np.abs(data['BRCA1']))
+
+# Features and outcomes
+features = ['BRCA1_FFT', 'TP53_FFT', 'EGFR_FFT', 'BRCA1_stability']
+X = data[features]
+data['Outcome'] = (data['BRCA1_FFT'] + data['TP53_FFT'] > data['EGFR_FFT']).astype(int)
+y = data['Outcome']
+
+# Train the model
+model = LogisticRegression()
+model.fit(X, y)
+
+# Select random samples for personalized outcome prediction
+sample_patients = data.sample(5, random_state=42)
+predictions = model.predict_proba(sample_patients[features])[:, 1]
+
+
+
+# Enhancing the visualization for better understanding by improving the plotting details and adding more descriptive elements.
+
+plt.figure(figsize=(12, 7))
+
+# Creating an index for each sample patient for clearer plotting
+sample_indices = range(len(sample_patients))
+
+# Plotting predicted probabilities
+plt.bar(sample_indices, predictions, color='blue', width=0.4, label='Predicted Probability of Positive Outcome', align='center')
+
+# Plotting actual outcomes, adjusted position for clarity
+actual_outcomes_positions = [x + 0.4 for x in sample_indices]
+plt.bar(actual_outcomes_positions, sample_patients['Outcome'], color='red', width=0.4, label='Actual Outcome', align='center')
+
+# Adding details for clarity
+plt.xticks([x + 0.2 for x in sample_indices], sample_patients['Patient_ID'])
+plt.xlabel('Patient ID')
+plt.ylabel('Probability / Outcome')
+plt.title('Comparison of Predicted and Actual Outcomes for Selected Patients')
+plt.legend()
+plt.grid(True, which='both', linestyle='--', linewidth=0.5)
+plt.savefig('C:/2024_Research/ACM/Patient71.png')  # Adjust path as needed
+# Show the improved plot
+plt.show()
+
+
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.linear_model import LogisticRegression
+
+# Load your dataset
+data_path = '/path/to/your/Synthetic_Specific_Pharmacogenomic_Data.csv'
+data = pd.read_csv(data_path)
+
+# Assume we've already processed data into features: FFT and stability
+data['BRCA1_FFT'] = np.abs(np.fft.fft(data['BRCA1']))
+data['TP53_FFT'] = np.abs(np.fft.fft(data['TP53']))
+data['EGFR_FFT'] = np.abs(np.fft.fft(data['EGFR']))
+data['BRCA1_stability'] = np.exp(-np.abs(data['BRCA1']))
+
+features = ['BRCA1_FFT', 'TP53_FFT', 'EGFR_FFT', 'BRCA1_stability']
+X = data[features]
+y = (data['BRCA1_FFT'] + data['TP53_FFT'] > data['EGFR_FFT']).astype(int)
+
+# Fit the logistic regression model
+model = LogisticRegression()
+model.fit(X, y)
+
+# Get coefficients from the model
+coefficients = model.coef_[0]
+feature_importance = pd.DataFrame({'Feature': features, 'Importance': coefficients})
+
+# Sort features by the absolute value of their coefficients for clearer visualization
+feature_importance['Absolute Importance'] = np.abs(feature_importance['Importance'])
+feature_importance = feature_importance.sort_values(by='Absolute Importance', ascending=False)
+
+# Plot feature importance
+plt.figure(figsize=(10, 6))
+plt.bar(feature_importance['Feature'], feature_importance['Importance'], color='green')
+plt.title('Feature Importance for Predicting Positive Outcomes')
+plt.xlabel('Features')
+plt.ylabel('Coefficient Value')
+plt.xticks(rotation=45)
+plt.grid(True)
+plt.savefig('/path/to/save/Feature_Importance.png')  # Specify your path
+plt.show()
+
+
+
+np.random.seed(42)
+time_points = np.linspace(0, 10, 100)
+BRCA1 = np.sin(2 * np.pi * time_points) + np.random.normal(0, 0.1, 100)  # Periodic with noise
+TP53 = np.cos(2 * np.pi * time_points) + np.random.normal(0, 0.1, 100)  # Periodic with noise
+EGFR = 0.5 * np.sin(4 * np.pi * time_points) + np.random.normal(0, 0.1, 100)  # Different frequency
+
+# Create a DataFrame for these genes
+time_series_data_specific = pd.DataFrame({
+    'Time': time_points,
+    'BRCA1': BRCA1,
+    'TP53': TP53,
+    'EGFR': EGFR
+})
+
+# Plotting the time-series data
+plt.figure(figsize=(12, 6))
+plt.plot(time_series_data_specific['Time'], time_series_data_specific['BRCA1'], label='BRCA1')
+plt.plot(time_series_data_specific['Time'], time_series_data_specific['TP53'], label='TP53')
+plt.plot(time_series_data_specific['Time'], time_series_data_specific['EGFR'], label='EGFR')
+plt.title('Temporal Patterns of Specific Gene Expressions')
+plt.xlabel('Time')
+plt.ylabel('Expression Level')
+plt.legend()
+plt.grid(True)
+plt.savefig('C:/2024_Research/ACM/Temporal_Gene_Expressions_Specific.png')
+plt.show()
+
+
+# To provide the visualizations for the Temporal Analysis of Gene Expressions and Correlation Heatmaps, 
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Simulate time-series data for 3 genes over 100 time points
+np.random.seed(42)
+time_points = np.linspace(0, 10, 100)
+gene_A = np.sin(time_points) + np.random.normal(0, 0.1, 100)  # Periodic with noise
+gene_B = np.cos(time_points) + np.random.normal(0, 0.1, 100)  # Periodic with noise
+gene_C = np.random.normal(0, 0.1, 100)  # Random noise
+
+# Create a DataFrame
+time_series_data = pd.DataFrame({
+    'Time': time_points,
+    'Gene_A': gene_A,
+    'Gene_B': gene_B,
+    'Gene_C': gene_C
+})
+
+# 1. Temporal Analysis of Gene Expressions
+plt.figure(figsize=(12, 6))
+plt.plot(time_series_data['Time'], time_series_data['Gene_A'], label='Gene A')
+plt.plot(time_series_data['Time'], time_series_data['Gene_B'], label='Gene B')
+plt.plot(time_series_data['Time'], time_series_data['Gene_C'], label='Gene C')
+plt.title('Temporal Patterns of Gene Expressions')
+plt.xlabel('Time')
+plt.ylabel('Expression Level')
+plt.legend()
+plt.grid(True)
+plt.savefig(plt.savefig('C:/2024_Research/ACM/Temporal_Gene_Expressions.png')
+plt.show()
+
+# 2. Correlation Heatmaps
+# Calculating the correlation matrix from the Fourier Transforms of the gene expressions
+fourier_transforms = np.fft.fft(time_series_data[['Gene_A', 'Gene_B', 'Gene_C']])
+correlation_matrix = np.corrcoef(fourier_transforms.T.real)
+
+# Plotting the heatmap
+plt.figure(figsize=(8, 6))
+sns.heatmap(correlation_matrix, annot=True, fmt=".2f", cmap='coolwarm', 
+            xticklabels=['Gene A', 'Gene B', 'Gene C'], 
+            yticklabels=['Gene A', 'Gene B', 'Gene C'])
+plt.title('Correlation Heatmap of Fourier Transforms of Gene Expressions')
+plt.savefig('C:/2024_Research/ACM/Gene_Expression_Correlation_Heatmap.png')
+plt.show()
+
+
+from sklearn.decomposition import PCA
+import matplotlib.pyplot as plt
+
+# Assuming the Fourier transformed data is ready and we are using the real part of the Fourier transformed data
+X = fourier_data_real
+
+# Instantiate PCA and fit to the data to reduce to two principal components
+pca = PCA(n_components=2)
+X_pca = pca.fit_transform(X)
+
+# Assuming we have a 'Treatment Outcome' column; here we simulate it for demonstration
+# This is usually a binary outcome, here represented as 0 or 1 randomly generated
+treatment_outcomes = np.random.randint(2, size=X_pca.shape[0])
+
+# Scatter plot of the first two principal components
+plt.figure(figsize=(10, 8))
+scatter = plt.scatter(X_pca[:, 0], X_pca[:, 1], c=treatment_outcomes, cmap='viridis', alpha=0.8)
+plt.title('PCA of Gene Expressions Colored by Treatment Outcome')
+plt.xlabel('Principal Component 1')
+plt.ylabel('Principal Component 2')
+plt.colorbar(scatter, label='Treatment Outcome (0=Negative, 1=Positive)')
+plt.grid(True)
+plt.savefig('plt.savefig('C:/2024_Research/ACM/PCA_Gene_Expressions.png')
+plt.show()
+
+
+import numpy as np
+import networkx as nx
+import matplotlib.pyplot as plt
+
+# Simulate synthetic Laplace stability data for genes
+np.random.seed(42)
+genes = ['BRCA1', 'TP53', 'EGFR', 'MYC', 'HER2']
+stability_scores = np.random.rand(len(genes))
+
+# Create a gene interaction network based on synthetic stability data
+G = nx.DiGraph()
+for i, gene in enumerate(genes):
+    G.add_node(gene, stability=stability_scores[i])
+
+# Assuming interactions are more likely between genes with similar stability scores
+threshold = 0.1  # Threshold for interaction based on stability difference
+for i in range(len(genes)):
+    for j in range(i + 1, len(genes)):
+        if abs(stability_scores[i] - stability_scores[j]) < threshold:
+            G.add_edge(genes[i], genes[j], weight=abs(stability_scores[i] - stability_scores[j]))
+            G.add_edge(genes[j], genes[i], weight=abs(stability_scores[i] - stability_scores[j]))
+
+# Visualizing the network
+pos = nx.spring_layout(G)  # positions for all nodes
+plt.figure(figsize=(8, 8))
+nx.draw_networkx_nodes(G, pos, node_size=7000, node_color='skyblue', alpha=0.6)
+nx.draw_networkx_edges(G, pos, arrowstyle='-|>', arrowsize=20, edge_color='gray', style='dashed')
+nx.draw_networkx_labels(G, pos, font_size=10, font_family='sans-serif')
+plt.title("Dynamic Gene Interaction Network Based on Stability Analysis")
+plt.axis('off')  # Turn off the axis for a cleaner look
+plt.show()
+
+
+import networkx as nx
+import matplotlib.pyplot as plt
+import numpy as np
+
+# Define a more dynamic interaction model
+np.random.seed(42)
+genes = ['BRCA1', 'TP53', 'EGFR', 'MYC', 'HER2']
+stability_scores = np.random.rand(len(genes))
+
+# Create the network
+G = nx.DiGraph()
+for gene in genes:
+    G.add_node(gene)
+
+# Add edges with dynamic interaction information (weights based on stability)
+for i in range(len(genes)):
+    for j in range(i + 1, len(genes)):
+        if np.random.rand() > 0.5:  # Randomly decide if an edge should be added
+            weight = np.abs(stability_scores[i] - stability_scores[j])
+            G.add_edge(genes[i], genes[j], weight=weight)
+            G.add_edge(genes[j], genes[i], weight=weight)
+
+# Position nodes in a circular layout
+pos = nx.circular_layout(G)
+
+# Draw the graph
+plt.figure(figsize=(10, 10))
+edges = G.edges(data=True)
+nodes = nx.draw_networkx_nodes(G, pos, node_color='skyblue', node_size=5000, alpha=0.6)
+labels = nx.draw_networkx_labels(G, pos, font_size=14, font_family='sans-serif')
+
+# Draw edges with varying width and alpha based on weight
+for u, v, data in edges:
+    edge_color = 'grey' if data['weight'] < 0.3 else 'black'
+    alpha = 0.5 if data['weight'] < 0.3 else 1.0
+    width = 2 if data['weight'] < 0.3 else 4
+    nx.draw_networkx_edges(G, pos, edgelist=[(u, v)], width=width, edge_color=edge_color, alpha=alpha, style='solid', arrows=True)
+
+plt.title("Dynamic Gene Interaction Network", fontsize=18)
+plt.axis('off')
+plt.savefig('C:/2024_Research/ACM/Dynamic_Gene_Interaction_Network.png')
+plt.show()
+
+
+from sklearn.datasets import make_classification
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import roc_curve, auc, precision_recall_curve, average_precision_score, confusion_matrix, ConfusionMatrixDisplay
+import matplotlib.pyplot as plt
+
+# Simulate a binary classification dataset
+X, y = make_classification(n_samples=1000, n_features=20, n_classes=2, random_state=42)
+
+# Split the data into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Fit a logistic regression model
+model = LogisticRegression()
+model.fit(X_train, y_train)
+
+# Predict probabilities
+probabilities = model.predict_proba(X_test)[:, 1]
+
+# Calculate ROC Curve and AUC
+fpr, tpr, thresholds = roc_curve(y_test, probabilities)
+roc_auc = auc(fpr, tpr)
+
+# Calculate Precision-Recall Curve and AUC
+precision, recall, thresholds_pr = precision_recall_curve(y_test, probabilities)
+pr_auc = average_precision_score(y_test, probabilities)
+
+# Plot ROC Curve
+plt.figure(figsize=(12, 6))
+plt.subplot(1, 2, 1)
+plt.plot(fpr, tpr, color='blue', lw=2, label='ROC curve (area = %0.2f)' % roc_auc)
+plt.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--')
+plt.xlim([0.0, 1.0])
+plt.ylim([0.0, 1.05])
+plt.xlabel('False Positive Rate')
+plt.ylabel('True Positive Rate')
+plt.title('Receiver Operating Characteristic')
+plt.legend(loc="lower right")
+
+
+# Plot Precision-Recall Curve
+plt.subplot(1, 2, 2)
+plt.plot(recall, precision, color='green', lw=2, label='Precision-Recall curve (area = %0.2f)' % pr_auc)
+plt.xlim([0.0, 1.0])
+plt.ylim([0.0, 1.05])
+plt.xlabel('Recall')
+plt.ylabel('Precision')
+plt.title('Precision-Recall Curve')
+plt.legend(loc="lower left")
+
+plt.tight_layout()
+plt.savefig('C:/2024_Research/ACM/Precision.png')
+plt.show()
+
+# Calculate and plot Confusion Matrix
+cm = confusion_matrix(y_test, model.predict(X_test))
+disp = ConfusionMatrixDisplay(confusion_matrix=cm)
+disp.plot(cmap='Blues')
+plt.savefig('C:/2024_Research/ACM/PrecisionOutcomes.png')
+plt.show()
